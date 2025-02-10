@@ -187,6 +187,18 @@ impl SlotsProcessor {
             .map(|tx| Transaction::try_from((tx, &execution_block)))
             .collect::<Result<Vec<Transaction>>>()?;
 
+        let transactions_entities = transactions_entities
+        .into_iter()
+        .map(|mut tx| {
+            // check whether the to is None
+            if tx.to.is_none() {
+                //  set to 0xFFFF...
+                tx.to = Some(Address::from([0xFF; 20]));
+            }
+            tx
+        })
+        .collect::<Vec<Transaction>>();
+
         if transactions_entities.is_empty() {
             debug!(
                 target = "slots_processor",
